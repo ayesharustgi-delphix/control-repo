@@ -3,14 +3,62 @@
 #
 
 class profile::crdb{
+  # Define the log file path
+  $log_file = '/var/log/validation_report.log'
+
+  # Define an exec resource to log the validation output
+  exec { 'log_validation_output':
+    command => "cat $log_file",
+    path    => ['/bin', '/usr/bin'],
+    refreshonly => true,
+  }
+
+  # Check if utilities like netstat, expect are installed on the host
+  package { ['netstat', 'expect']:
+    ensure => present,
+    loglevel => 'debug',
+    logoutput => true,
+    notify => Exec['log_validation_output'],
+  }
+
+  # Check the specified ports using the netstat utility
+  exec { 'check_ports':
+    command => "
+      if ! netstat -antp | grep -E '(22|111|2049|1110|54043|54044|54045|26257|26258|26259|8080|8081|8082)'; then
+        echo 'Required ports are not open'
+        exit 1
+      fi
+    ",
+    path    => ['/bin', '/usr/bin'],
+    returns => [0, 1],
+    loglevel => 'debug',
+    logoutput => true,
+    notify => Exec['log_validation_output'],
+  }
+
   # Check if the toolkit directory "/home/delphix/toolkit" is installed
   file { '/home/delphix/toolkit':
     ensure => 'directory',
+    size   => '2 GB',
+    loglevel => 'debug',
+    logoutput => true,
+    notify => Exec['log_validation_output'],
   }
 
   # Check if the Cockroach installation directory path "/u01/cockroach" is installed
   file { '/u01/cockroach':
     ensure => 'directory',
+    loglevel => 'debug',
+    logoutput => true,
+    notify => Exec['log_validation_output'],
+  }
+
+  # Check if the delphix user has access on the cockroachdb binaries directory
+  file { '/u01/cockroach':
+    ensure => 'directory',
+    owner  => 'delphix',
+    group  => 'delphix',
+    mode   => '0755',
   }
 
   # Check if cockroachdb binaries are installed, if not install using wget the latest stable version
@@ -33,66 +81,4 @@ class profile::crdb{
     onlyif  => "command -v cockroach",
     logoutput => true,
   }
-
-  ## Ensure the directory for extraction exists
-  #file { $extract_path:
-  #  ensure => directory,
-  #}
-
-  ## Download and extract the tar file
-  #archive { $tar_dest:
-  #  ensure       => present,
-  #  source       => $tar_url,
-  #  extract      => true,
-  #  extract_path => $extract_path,
-  #  creates      => $docker_image1,
-  #  cleanup      => true,
-  #  require      => File[$extract_path],
-  #}
-
-  ## Load the Docker images
-  #exec { 'load_controller_service_image':
-  #  command     => "docker load -i ${docker_image1}",
-  #  path        => ['/bin', '/usr/bin'],
-  #  #refreshonly => true,
-  #  subscribe   => Archive[$tar_dest],
-  #}
-
-  #exec { 'load_masking_service_image':
-  #  command     => "docker load -i ${docker_image2}",
-  #  path        => ['/bin', '/usr/bin'],
-  #  #refreshonly => true,
-  #  subscribe   => Archive[$tar_dest],
-  #}
-
-  #exec { 'load_proxy_service_image':
-  #  command     => "docker load -i ${docker_image3}",
-  #  path        => ['/bin', '/usr/bin'],
-  #  #refreshonly => true,
-  #  subscribe   => Archive[$tar_dest],
-  #}
-
-  #exec { 'load_mongo_unload_service_image':
-  #  command     => "docker load -i ${docker_image4}",
-  #  path        => ['/bin', '/usr/bin'],
-  #  #refreshonly => true,
-  #  subscribe   => Archive[$tar_dest],
-  #}
-
-  #exec { 'load_mongo_load_service_image':
-  #  command     => "docker load -i ${docker_image5}",
-  #  path        => ['/bin', '/usr/bin'],
-  #  #refreshonly => true,
-  #  subscribe   => Archive[$tar_dest],
-  #}
-
-  ## Run docker-compose up -d
-  #exec { 'docker_compose_up':
-  #  command     => "docker-compose -f ${compose_file} up -d",
-  #  path        => ['/bin', '/usr/bin', '/usr/local/bin'],
-  #  cwd         => $extract_path, # Ensure the command runs in the directory with the docker-compose.yml file
-  #  #refreshonly => true,
-  #  subscribe   => [Exec['load_mongo_load_service_image'], Exec['load_mongo_unload_service_image'], Exec['load_proxy_service_image'], Exec['load_masking_service_image'], Exec['load_controller_service_image']],
-  #}
 }
-
