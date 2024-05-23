@@ -15,12 +15,6 @@ class profile::crdb {
     returns   => [0, 1],
     logoutput => true,
   }
-#  exec { 'check_ports':
-#    command   => "if ! netstat -antp | grep -E '(22|111|2049|1110|54043|54044|54045|26257|26258|26259|8080|8081|8082)' > $log_file; then echo 'Required ports are not open' >> $log_file; exit 1; fi",
-#    path      => ['/bin', '/usr/bin'],
-#    returns   => [0, 1],
-#    logoutput => true,
-#  }
 
   # Check if the toolkit directory "/home/delphix/toolkit" is installed
   file { '/home/delphix/toolkit':
@@ -29,14 +23,14 @@ class profile::crdb {
 
   # Check if the delphix user exists
   exec { 'check_delphix_user':
-    command   => "id delphix",
+    command   => "id delphix >> $log_file",
     path      => ['/bin', '/usr/bin'],
     logoutput => true,
   }
 
   # Check if the delphix user has access on the cockroachdb binaries directory
   exec { 'check_delphix_access':
-    command => "ls -ld /u01/cockroach",
+    command => "ls -ld /u01/cockroach >> $log_file",
     path    => ['/bin', '/usr/bin'],
     onlyif  => "id delphix",
     logoutput => true,
@@ -54,8 +48,8 @@ class profile::crdb {
   exec { 'install_cockroachdb':
     command => "
       if ! command -v cockroach &> /dev/null; then
-        wget -q https://binaries.cockroachdb.com/cockroach-v22.2.8.linux-amd64.tgz
-        tar xzf cockroach-v22.2.8.linux-amd64.tgz
+        wget -q https://binaries.cockroachdb.com/cockroach-v22.2.8.linux-amd64.tgz >> $log_file
+        tar xzf cockroach-v22.2.8.linux-amd64.tgz >> $log_file
         sudo cp -i cockroach-v22.2.8.linux-amd64/cockroach /u01/cockroach
       fi
     ",
@@ -66,7 +60,7 @@ class profile::crdb {
 
   # Check the version of installed cockroachdb
   exec { 'check_cockroachdb_version':
-    command   => "cockroach version",
+    command   => "cockroach version >> $log_file",
     path      => ['/bin', '/usr/bin', '/u01/cockroach'],
     onlyif    => "command -v cockroach",
     logoutput => true,
