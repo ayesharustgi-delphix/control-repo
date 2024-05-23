@@ -3,7 +3,7 @@ class profile::crdb {
   $log_file = '/var/log/crdb_env_log_validation_output.log'
 
   # Check if utilities like netstat, expect are installed on the host
-  package { ['netstat', 'expect']:
+  package { ['net-tools', 'expect']:
     ensure => present,
     notify => Exec['check_ports'],
   }
