@@ -67,7 +67,6 @@ class profile::crdb {
   exec { 'create_env':
     command   => "/tmp/create_env.sh",
     path      => ['/bin', '/usr/bin', '/u01/cockroach'],
-    require   => File['/tmp/create_env.sh'],
     logoutput => true,
   }
 }
