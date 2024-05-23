@@ -18,7 +18,7 @@ class profile::crdb {
     ",
     path      => ['/bin', '/usr/bin'],
     returns   => [0, 1],
-    logoutput => $log_file,
+    logoutput => true,
   }
 
   # Check if the toolkit directory "/home/delphix/toolkit" is installed
@@ -30,7 +30,7 @@ class profile::crdb {
   exec { 'check_delphix_user':
     command   => "id delphix",
     path      => ['/bin', '/usr/bin'],
-    logoutput => $log_file,
+    logoutput => true,
   }
 
   # Check if the delphix user has access on the cockroachdb binaries directory
@@ -38,7 +38,7 @@ class profile::crdb {
     command => "ls -ld /u01/cockroach",
     path    => ['/bin', '/usr/bin'],
     onlyif  => "id delphix",
-    logoutput => $log_file,
+    logoutput => true,
   }
 
   # Check if the delphix user has access on the cockroachdb binaries directory
@@ -60,7 +60,7 @@ class profile::crdb {
     ",
     path    => ['/bin', '/usr/bin', '/u01/cockroach'],
     unless  => "command -v cockroach",
-    logoutput => $log_file,
+    logoutput => true,
   }
 
   # Check the version of installed cockroachdb
@@ -68,7 +68,7 @@ class profile::crdb {
     command   => "cockroach version",
     path      => ['/bin', '/usr/bin', '/u01/cockroach'],
     onlyif    => "command -v cockroach",
-    logoutput => $log_file,
+    logoutput => true,
   }
 }
 
