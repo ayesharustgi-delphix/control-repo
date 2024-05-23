@@ -1,18 +1,53 @@
-# An example profile
 #
-class profile::crdb{
-  $extract_path  = '/tmp/hyperscale_compliance_images'
-  $docker_image1 = "${extract_path}/controller-service.tar"
-  $docker_image2 = "${extract_path}/masking-service.tar"
-  $docker_image3 = "${extract_path}/proxy.tar"
-  $docker_image4 = "${extract_path}/mongo-unload-service.tar"
-  $docker_image5 = "${extract_path}/mongo-load-service.tar"
-  $compose_file  = "${extract_path}/docker-compose.yaml"
+# An example profile for CockroachDB Validations
+#
 
-  # Load the Docker images
-  exec { 'test_command':
-    command     => "ls -lart > /tmp/ls_op",
-    path        => ['/bin', '/usr/bin'],
+  # Check if the toolkit directory "/home/delphix/toolkit" is installed
+  file { '/home/delphix/toolkit':
+    ensure => 'directory',
+  }
+
+  # Check if the Cockroach installation directory path "/u01/cockroach" is installed
+  file { '/u01/cockroach':
+    ensure => 'directory',
+  }
+
+  # Check if cockroachdb binaries are installed, if not install using wget the latest stable version
+  exec { 'install_cockroachdb':
+    command => "
+      if ! command -v cockroach &> /dev/null; then
+        wget -q https://binaries.cockroachdb.com/cockroach-v22.2.8.linux-amd64.tgz
+        tar xzf cockroach-v22.2.8.linux-amd64.tgz
+        sudo cp -i cockroach-v22.2.8.linux-amd64/cockroach /u01/cockroach
+      fi
+    ",
+    path    => ['/bin', '/usr/bin', '/u01/cockroach'],
+    unless  => "command -v cockroach",
+  }
+
+  # Check the version of installed cockroachdb
+  exec { 'check_cockroachdb_version':
+    command => "cockroach version",
+    path    => ['/bin', '/usr/bin', '/u01/cockroach'],
+    onlyif  => "command -v cockroach",
+    logoutput => true,
+  }
+
+  # Verify the specified ports on the hosts
+  firewall::openport { 'allow_ssh':
+    port => 22,
+  }
+
+  firewall::openport { 'allow_rpc':
+    port => [111, 2049, 54043, 54044, 54045, 26257, 26258, 26258],
+  }
+
+  firewall::openport { 'allow_nsmclient':
+    port => 1110,
+  }
+
+  firewall::openport { 'allow_traceroute':
+    port => '33434-33464/udp',
   }
 
   ## Ensure the directory for extraction exists
