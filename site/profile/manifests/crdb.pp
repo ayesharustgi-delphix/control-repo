@@ -38,6 +38,21 @@ class profile::crdb{
     notify => Exec['log_validation_output'],
   }
 
+  # Check if the delphix user exists
+  exec { 'check_delphix_user':
+    command => "id delphix",
+    path    => ['/bin', '/usr/bin'],
+    notify => Exec['check_delphix_access'],
+  }
+
+  # Check if the delphix user has access on the cockroachdb binaries directory
+  exec { 'check_delphix_access':
+    command => "ls -ld /u01/cockroach",
+    path    => ['/bin', '/usr/bin'],
+    onlyif  => "id delphix",
+    notify => Exec['log_validation_output'],
+  }
+
   # Check if the delphix user has access on the cockroachdb binaries directory
   file { '/u01/cockroach':
     ensure => 'directory',
