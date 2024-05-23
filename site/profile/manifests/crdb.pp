@@ -4,19 +4,12 @@
 
 class profile::crdb{
   # Define the log file path
-  $log_file = '/var/log/validation_report.log'
-
-  # Define an exec resource to log the validation output
-  exec { 'log_validation_output':
-    command => "cat $log_file",
-    path    => ['/bin', '/usr/bin'],
-    refreshonly => true,
-  }
+  $log_file = '/var/log/crdb_env_log_validation_output.log'
 
   # Check if utilities like netstat, expect are installed on the host
   package { ['netstat', 'expect']:
     ensure => present,
-    notify => Exec['log_validation_output'],
+    notify => Exec['check_ports'],
   }
 
   # Check the specified ports using the netstat utility
@@ -29,20 +22,17 @@ class profile::crdb{
     ",
     path    => ['/bin', '/usr/bin'],
     returns => [0, 1],
-    notify => Exec['log_validation_output'],
   }
 
   # Check if the toolkit directory "/home/delphix/toolkit" is installed
   file { '/home/delphix/toolkit':
     ensure => 'directory',
-    notify => Exec['log_validation_output'],
   }
 
   # Check if the delphix user exists
   exec { 'check_delphix_user':
     command => "id delphix",
     path    => ['/bin', '/usr/bin'],
-    notify => Exec['check_delphix_access'],
   }
 
   # Check if the delphix user has access on the cockroachdb binaries directory
@@ -50,7 +40,6 @@ class profile::crdb{
     command => "ls -ld /u01/cockroach",
     path    => ['/bin', '/usr/bin'],
     onlyif  => "id delphix",
-    notify => Exec['log_validation_output'],
   }
 
   # Check if the delphix user has access on the cockroachdb binaries directory
@@ -59,7 +48,6 @@ class profile::crdb{
     owner  => 'delphix',
     group  => 'delphix',
     mode   => '0755',
-    notify => Exec['log_validation_output'],
   }
 
   # Check if cockroachdb binaries are installed, if not install using wget the latest stable version
@@ -73,7 +61,6 @@ class profile::crdb{
     ",
     path    => ['/bin', '/usr/bin', '/u01/cockroach'],
     unless  => "command -v cockroach",
-    notify => Exec['log_validation_output'],
   }
 
   # Check the version of installed cockroachdb
@@ -81,6 +68,5 @@ class profile::crdb{
     command => "cockroach version",
     path    => ['/bin', '/usr/bin', '/u01/cockroach'],
     onlyif  => "command -v cockroach",
-    notify => Exec['log_validation_output'],
   }
 }
