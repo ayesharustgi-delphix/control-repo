@@ -16,8 +16,6 @@ class profile::crdb{
   # Check if utilities like netstat, expect are installed on the host
   package { ['netstat', 'expect']:
     ensure => present,
-    loglevel => 'debug',
-    logoutput => true,
     notify => Exec['log_validation_output'],
   }
 
@@ -31,8 +29,6 @@ class profile::crdb{
     ",
     path    => ['/bin', '/usr/bin'],
     returns => [0, 1],
-    loglevel => 'debug',
-    logoutput => true,
     notify => Exec['log_validation_output'],
   }
 
@@ -40,8 +36,6 @@ class profile::crdb{
   file { '/home/delphix/toolkit':
     ensure => 'directory',
     size   => '2 GB',
-    loglevel => 'debug',
-    logoutput => true,
     notify => Exec['log_validation_output'],
   }
 
@@ -51,8 +45,6 @@ class profile::crdb{
     owner  => 'delphix',
     group  => 'delphix',
     mode   => '0755',
-    loglevel => 'debug',
-    logoutput => true,
     notify => Exec['log_validation_output_cockroach'],
   }
 
@@ -67,6 +59,7 @@ class profile::crdb{
     ",
     path    => ['/bin', '/usr/bin', '/u01/cockroach'],
     unless  => "command -v cockroach",
+    notify => Exec['log_validation_output_cockroach'],
   }
 
   # Check the version of installed cockroachdb
@@ -74,6 +67,6 @@ class profile::crdb{
     command => "cockroach version",
     path    => ['/bin', '/usr/bin', '/u01/cockroach'],
     onlyif  => "command -v cockroach",
-    logoutput => true,
+    notify => Exec['log_validation_output_cockroach'],
   }
 }
