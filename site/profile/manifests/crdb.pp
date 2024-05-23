@@ -45,20 +45,15 @@ class profile::crdb{
     notify => Exec['log_validation_output'],
   }
 
-  # Check if the Cockroach installation directory path "/u01/cockroach" is installed
-  file { '/u01/cockroach':
-    ensure => 'directory',
-    loglevel => 'debug',
-    logoutput => true,
-    notify => Exec['log_validation_output'],
-  }
-
   # Check if the delphix user has access on the cockroachdb binaries directory
   file { '/u01/cockroach':
     ensure => 'directory',
     owner  => 'delphix',
     group  => 'delphix',
     mode   => '0755',
+    loglevel => 'debug',
+    logoutput => true,
+    notify => Exec['log_validation_output_cockroach'],
   }
 
   # Check if cockroachdb binaries are installed, if not install using wget the latest stable version
