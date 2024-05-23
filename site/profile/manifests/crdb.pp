@@ -2,6 +2,7 @@
 # An example profile for CockroachDB Validations
 #
 
+class profile::crdb{
   # Check if the toolkit directory "/home/delphix/toolkit" is installed
   file { '/home/delphix/toolkit':
     ensure => 'directory',
