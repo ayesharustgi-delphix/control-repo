@@ -34,23 +34,6 @@ class profile::crdb{
     logoutput => true,
   }
 
-  # Verify the specified ports on the hosts
-  firewall::openport { 'allow_ssh':
-    port => 22,
-  }
-
-  firewall::openport { 'allow_rpc':
-    port => [111, 2049, 54043, 54044, 54045, 26257, 26258, 26258],
-  }
-
-  firewall::openport { 'allow_nsmclient':
-    port => 1110,
-  }
-
-  firewall::openport { 'allow_traceroute':
-    port => '33434-33464/udp',
-  }
-
   ## Ensure the directory for extraction exists
   #file { $extract_path:
   #  ensure => directory,
