@@ -46,15 +46,9 @@ class profile::crdb {
 
   # Check if cockroachdb binaries are installed, if not install using wget the latest stable version
   exec { 'install_cockroachdb':
-    command => "
-      if ! command -v cockroach &> /dev/null; then
-        wget -q https://binaries.cockroachdb.com/cockroach-v22.2.8.linux-amd64.tgz >> $log_file
-        tar xzf cockroach-v22.2.8.linux-amd64.tgz >> $log_file
-        sudo cp -i cockroach-v22.2.8.linux-amd64/cockroach /u01/cockroach
-      fi
-    ",
-    path    => ['/bin', '/usr/bin', '/u01/cockroach'],
-    unless  => "command -v cockroach",
+    command  => "/bin/bash -c 'wget -q https://binaries.cockroachdb.com/cockroach-v22.2.8.linux-amd64.tgz >> $log_file && tar -zxvf cockroach-v22.2.8.linux-amd64.tgz >> $log_file && sudo cp -i cockroach-v22.2.8.linux-amd64/cockroach /u01/cockroach >> $log_file'",
+    path     => ['/bin', '/usr/bin', '/u01/cockroach'],
+    unless   => "/bin/bash -c 'command -v cockroach'",
     logoutput => true,
   }
 
