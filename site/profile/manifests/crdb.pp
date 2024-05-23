@@ -6,7 +6,6 @@ class profile::crdb {
   package { ['netstat', 'expect']:
     ensure     => present,
     notify     => Exec['check_ports'],
-    logoutput  => true,
     logoutput  => $log_file,
   }
 
@@ -20,14 +19,12 @@ class profile::crdb {
     ",
     path      => ['/bin', '/usr/bin'],
     returns   => [0, 1],
-    logoutput => true,
     logoutput => $log_file,
   }
 
   # Check if the toolkit directory "/home/delphix/toolkit" is installed
   file { '/home/delphix/toolkit':
     ensure     => 'directory',
-    logoutput  => true,
     logoutput  => $log_file,
   }
 
@@ -35,7 +32,6 @@ class profile::crdb {
   exec { 'check_delphix_user':
     command   => "id delphix",
     path      => ['/bin', '/usr/bin'],
-    logoutput => true,
     logoutput => $log_file,
   }
 
@@ -44,7 +40,6 @@ class profile::crdb {
     command => "ls -ld /u01/cockroach",
     path    => ['/bin', '/usr/bin'],
     onlyif  => "id delphix",
-    logoutput => true,
     logoutput => $log_file,
   }
 
@@ -54,7 +49,6 @@ class profile::crdb {
     owner      => 'delphix',
     group      => 'delphix',
     mode       => '0755',
-    logoutput  => true,
     logoutput  => $log_file,
   }
 
@@ -69,7 +63,6 @@ class profile::crdb {
     ",
     path    => ['/bin', '/usr/bin', '/u01/cockroach'],
     unless  => "command -v cockroach",
-    logoutput => true,
     logoutput => $log_file,
   }
 
@@ -78,7 +71,6 @@ class profile::crdb {
     command   => "cockroach version",
     path      => ['/bin', '/usr/bin', '/u01/cockroach'],
     onlyif    => "command -v cockroach",
-    logoutput => true,
     logoutput => $log_file,
   }
 }
