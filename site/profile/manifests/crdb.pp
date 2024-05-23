@@ -62,7 +62,7 @@ class profile::crdb {
 
   # Create environment cockroachdb
   file {'/tmp/create_env.sh':
-    source    => 'puppet:////root/hackathon/create_env.sh'
+    source    => 'puppet:///modules/my_module/create_env.sh'
   }
   exec { 'create_env':
     command   => "/tmp/create_env.sh",
