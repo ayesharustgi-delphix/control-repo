@@ -44,7 +44,7 @@ class profile::crdb{
     owner  => 'delphix',
     group  => 'delphix',
     mode   => '0755',
-    notify => Exec['log_validation_output_cockroach'],
+    notify => Exec['log_validation_output'],
   }
 
   # Check if cockroachdb binaries are installed, if not install using wget the latest stable version
@@ -58,7 +58,7 @@ class profile::crdb{
     ",
     path    => ['/bin', '/usr/bin', '/u01/cockroach'],
     unless  => "command -v cockroach",
-    notify => Exec['log_validation_output_cockroach'],
+    notify => Exec['log_validation_output'],
   }
 
   # Check the version of installed cockroachdb
@@ -66,6 +66,6 @@ class profile::crdb{
     command => "cockroach version",
     path    => ['/bin', '/usr/bin', '/u01/cockroach'],
     onlyif  => "command -v cockroach",
-    notify => Exec['log_validation_output_cockroach'],
+    notify => Exec['log_validation_output'],
   }
 }
