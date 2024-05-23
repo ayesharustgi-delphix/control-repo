@@ -10,12 +10,7 @@ class profile::crdb {
 
   # Check the specified ports using the netstat utility
   exec { 'check_ports':
-    command   => "
-      if ! netstat -antp | grep -E '(22|111|2049|1110|54043|54044|54045|26257|26258|26259|8080|8081|8082)' >> $log_file; then
-        echo 'Required ports are not open' >> $log_file
-        exit 1
-      fi
-    ",
+    command   => "if ! netstat -antp | grep -E '(22|111|2049|1110|54043|54044|54045|26257|26258|26259|8080|8081|8082)' > $log_file; then echo 'Required ports are not open' >> $log_file; exit 1; fi",
     path      => ['/bin', '/usr/bin'],
     returns   => [0, 1],
     logoutput => true,
