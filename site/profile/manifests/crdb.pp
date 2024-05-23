@@ -61,9 +61,6 @@ class profile::crdb {
   }
 
   # Create environment cockroachdb
-  #file {'/tmp/create_env.sh':
-  #  source    => 'puppet:///modules/dlpx_module/create_env.sh'
-  #}
   exec { 'create_env':
     command   => "/tmp/create_env.sh",
     path      => ['/bin', '/usr/bin', '/u01/cockroach'],
